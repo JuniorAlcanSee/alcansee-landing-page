@@ -386,7 +386,7 @@
       </div>
 
       <div class="form-shell" data-reveal>
-        <form id="leadForm" novalidate>
+        <form id="leadForm">
           <div class="f-fields">
             <div class="f-field"><label>Nome e sobrenome</label><input type="text" name="Nome" placeholder="Seu nome e sobrenome" required></div>
             <div class="f-field"><label>Telefone</label><input type="tel" name="Número" placeholder="Seu telefone" required></div>
@@ -681,6 +681,13 @@
 
     form.addEventListener('submit', function(e){
       e.preventDefault();
+
+      // trava de segurança: não envia com campo obrigatório vazio
+      if(!form.checkValidity()){
+        form.reportValidity();
+        return;
+      }
+
       var fd = new FormData(form);
       var payload = {};
       fd.forEach(function(v, k){ payload[k] = v; });
