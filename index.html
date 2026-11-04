@@ -811,6 +811,14 @@ fbq('track','PageView');
   }
   var ORIGEM = lerOrigem();
 
+  // ---- evento do pixel por faixa: só 20k+ conta como Lead (otimização) ----
+  function registrarEventoPixel(faturamento){
+    if(!window.fbq) return;
+    if(faturamento === 'Até 10 mil por mês') fbq('trackCustom','LeadPequeno');
+    else if(faturamento === 'De 10 mil a 20 mil por mês') fbq('trackCustom','LeadMedio'); // validado depois pelo comercial
+    else fbq('track','Lead');
+  }
+
   // ---- lead form ----
   (function(){
     var form = document.getElementById('leadForm');
@@ -842,7 +850,7 @@ fbq('track','PageView');
         var params = new URLSearchParams(payload);
         fetch(CONFIG.FORM_ENDPOINT, { method:'POST', mode:'no-cors', body: params })
           .then(function(){
-            if(window.fbq) fbq('track','Lead');
+            registrarEventoPixel(payload['Faturamento']);
             showSuccess();
           })
           .catch(showSuccess);
