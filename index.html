@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AlcanSee Digital — Marketing para Moda</title>
 <meta name="description" content="Sua loja de moda vendendo todo mês, não só na liquidação. Assessoria especializada que já atendeu +400 lojas de vestuário, calçados e acessórios.">
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','2482190008807944');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2482190008807944&ev=PageView&noscript=1"/></noscript>
 <link rel="icon" href="assets/logo-icone.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -785,6 +796,21 @@
     });
   });
 
+  // ---- origem do visitante (utm do anúncio) ----
+  var ORIGEM_CAMPOS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'];
+  function lerOrigem(){
+    var origem = {};
+    try { origem = JSON.parse(localStorage.getItem('lp_origem')) || {}; } catch(err){}
+    var q = new URLSearchParams(location.search), nova = {};
+    ORIGEM_CAMPOS.forEach(function(k){ if(q.get(k)) nova[k] = q.get(k); });
+    if(Object.keys(nova).length){
+      origem = nova;
+      try { localStorage.setItem('lp_origem', JSON.stringify(origem)); } catch(err){}
+    }
+    return origem;
+  }
+  var ORIGEM = lerOrigem();
+
   // ---- lead form ----
   (function(){
     var form = document.getElementById('leadForm');
@@ -801,6 +827,7 @@
       var fd = new FormData(form);
       var payload = {};
       fd.forEach(function(v, k){ payload[k] = v; });
+      Object.keys(ORIGEM).forEach(function(k){ payload[k] = ORIGEM[k]; });
 
       var submitBtn = form.querySelector('.f-submit');
       submitBtn.textContent = 'Enviando...';
@@ -814,7 +841,10 @@
       if(CONFIG.FORM_ENDPOINT){
         var params = new URLSearchParams(payload);
         fetch(CONFIG.FORM_ENDPOINT, { method:'POST', mode:'no-cors', body: params })
-          .then(showSuccess)
+          .then(function(){
+            if(window.fbq) fbq('track','Lead');
+            showSuccess();
+          })
           .catch(showSuccess);
       } else {
         console.warn('FORM_ENDPOINT não configurado. Dados capturados:', payload);
