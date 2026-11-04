@@ -846,13 +846,13 @@ fbq('track','PageView');
         document.getElementById('fSuccess').classList.add('active');
       }
 
+      // dispara no envio: a resposta do Apps Script (no-cors) não é confiável
+      registrarEventoPixel(payload['Faturamento']);
+
       if(CONFIG.FORM_ENDPOINT){
         var params = new URLSearchParams(payload);
         fetch(CONFIG.FORM_ENDPOINT, { method:'POST', mode:'no-cors', body: params })
-          .then(function(){
-            registrarEventoPixel(payload['Faturamento']);
-            showSuccess();
-          })
+          .then(showSuccess)
           .catch(showSuccess);
       } else {
         console.warn('FORM_ENDPOINT não configurado. Dados capturados:', payload);
